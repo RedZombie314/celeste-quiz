@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="dark">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Celeste 实体性格小测 · 单题步进版</title>
+<style>
+  :root{
+    --bg:#0f1223;--card:#171a33;--ink:#e7e9ff;--muted:#aab1ff;--accent:#7cf0ff;--gold:#ffd76a;--pink:#ff77b7;--green:#76ffb0;--warn:#ffb3a7;
+    --line:#2b2f63;--line2:#30356e;--chip:#232753;--chip2:#2f3472;--btn:#1a1f43;--btn2:#36408d;--qbg:#181c39;--bar:#0e1330;--barline:#263079;
+  }
+  [data-theme="light"]{
+    --bg:#f6f8ff;--card:#ffffff;--ink:#1b2357;--muted:#5b6cc8;--accent:#0a72ff;--gold:#b78500;--pink:#b21e63;--green:#0a9e63;--warn:#c2463c;
+    --line:#dfe3fb;--line2:#d1d8ff;--chip:#eef2ff;--chip2:#cbd5ff;--btn:#eaf0ff;--btn2:#c6d3ff;--qbg:#f4f6ff;--bar:#e9edff;--barline:#c9d3ff;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:radial-gradient(1200px 600px at 50% -10%,rgba(28,32,80,.5) 0%,var(--bg) 55%,var(--bg) 100%);color:var(--ink);font:16px/1.5 system-ui,-apple-system,Segoe UI,Roboto,Emoji}
+  .wrap{max-width:880px;margin:0 auto;padding:20px}
+  header{display:flex;gap:12px;align-items:center;justify-content:space-between;margin:8px 0 20px}
+  .brand{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+  h1{font-size:22px;margin:0}
+  .chip{font-size:12px;padding:4px 8px;border-radius:999px;background:var(--chip);color:var(--muted);border:1px solid var(--chip2)}
+  .card{background:linear-gradient(180deg,var(--card) 0%,var(--card) 100%);border:1px solid var(--line);border-radius:14px;box-shadow:0 10px 30px rgba(0,0,0,.10);padding:18px}
+  .qbox{margin:6px 0;padding:14px;border-radius:12px;background:var(--qbg);border:1px solid var(--line2)}
+  .qbox h3{margin:0 0 8px;font-size:16px}
+  .opts{display:grid;grid-template-columns:1fr;gap:10px;margin-top:8px}
+  .opt{display:flex;gap:10px;padding:10px 12px;border:1px solid var(--line2);border-radius:10px;background:transparent;cursor:pointer}
+  .opt:hover{border-color:var(--btn2)}
+  input[type=radio]{accent-color:var(--accent)}
+  .actions{display:flex;flex-wrap:wrap;gap:10px;justify-content:space-between;margin-top:16px}
+  .btn{padding:10px 14px;border-radius:10px;border:1px solid var(--btn2);background:var(--btn);color:var(--ink);cursor:pointer}
+  .btn.primary{background:linear-gradient(180deg,#20b9ff,#0f79ff);border-color:#1a6cff;color:#061223;font-weight:700}
+  .btn:disabled{opacity:.45;cursor:not-allowed}
+  .progress{display:flex;align-items:center;gap:10px}
+  .barwrap{flex:1;height:10px;background:var(--bar);border:1px solid var(--barline);border-radius:999px;overflow:hidden}
+  .barwrap>div{height:100%;background:linear-gradient(90deg,#7cf0ff,#a2ffce);width:0%}
+  .index{min-width:90px;text-align:right;font-variant-numeric:tabular-nums}
+  .meter{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+  .tag{font-size:12px;padding:4px 8px;border-radius:999px;border:1px solid var(--btn2);background:transparent;color:inherit}
+  .result{display:none;margin-top:18px;gap:16px}
+  .result.show{display:block}
+  .grid{display:grid;grid-template-columns:1fr;gap:16px}
+  @media(min-width:900px){.grid{grid-template-columns:1.1fr .9fr}}
+  .title{font-size:20px;margin:0 0 6px}
+  .desc{opacity:.95}
+  .pill{padding:3px 8px;border-radius:999px;border:1px solid var(--btn2);background:transparent;color:inherit;font-size:12px}
+  .scorebar{height:10px;background:var(--bar);border-radius:8px;overflow:hidden;border:1px solid var(--barline)}
+  .scorebar>div{height:100%;background:linear-gradient(90deg,#7cf0ff,#a2ffce);width:0%}
+  .note{opacity:.8}
+  footer{opacity:.75;margin:24px 0 10px;text-align:center;font-size:12px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="brand">
+      <h1>Celeste 实体性格小测 · 隐喻版</h1>
+      <span class="chip" id="themeChip" role="button" tabindex="0" title="切换浅色/深色">切换配色</span>
+      <span class="chip">16 题 · 单题步进</span>
+    </div>
+    <div class="progress" aria-label="进度">
+      <div class="barwrap" aria-hidden="true"><div id="pbar"></div></div>
+      <div class="index"><span id="idxNow">1</span>/<span>16</span></div>
+    </div>
+  </header>
+
+  <div class="card" id="quizCard">
+    <form id="quiz" autocomplete="off">
+      <div class="qbox" id="qBox">
+        <!-- 单题容器 -->
+      </div>
+      <div class="actions">
+        <div style="display:flex;gap:10px">
+          <button type="button" class="btn" id="prevBtn" disabled>上一题</button>
+          <button type="button" class="btn" id="nextBtn" disabled>下一题</button>
+        </div>
+        <div style="display:flex;gap:10px">
+          <button type="button" class="btn" id="resetBtn">清空重来</button>
+          <button type="submit" class="btn primary" id="submitBtn" disabled>提交查看结果</button>
+        </div>
+      </div>
+      <div id="warn" class="note" style="margin-top:10px"></div>
+    </form>
+  </div>
+
+  <!-- 结果区域 -->
+  <div id="result" class="result card">
+    <div class="grid">
+      <section>
+        <h2 class="title" id="resTitle">你的对应实体</h2>
+        <div class="meter" id="metaLine"></div>
+        <p class="desc" id="resDesc"></p>
+        <div class="meter" id="kwLine" style="margin-top:8px"></div>
+        <div style="margin:14px 0">
+          <div class="pill" id="eggBadge" style="display:none"></div>
+        </div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap">
+          <button class="btn" id="editBtn">返回修改答案</button>
+          <button class="btn" id="restartBtn">重新开始</button>
+        </div>
+      </section>
+      <aside>
+        <div class="qbox">
+          <h3>你的倾向雷达</h3>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+            <div>
+              <div>E / I</div>
+              <div class="scorebar"><div id="barEI"></div></div>
+              <div style="display:flex;justify-content:space-between"><span id="labE">E:0</span><span id="labI">I:0</span></div>
+            </div>
+            <div>
+              <div>S / N</div>
+              <div class="scorebar"><div id="barSN"></div></div>
+              <div style="display:flex;justify-content:space-between"><span id="labS">S:0</span><span id="labN">N:0</span></div>
+            </div>
+            <div>
+              <div>J / P</div>
+              <div class="scorebar"><div id="barJP"></div></div>
+              <div style="display:flex;justify-content:space-between"><span id="labJ">J:0</span><span id="labP">P:0</span></div>
+            </div>
+            <div>
+              <div>T / F</div>
+              <div class="scorebar"><div id="barTF"></div></div>
+              <div style="display:flex;justify-content:space-between"><span id="labT">T:0</span><span id="labF">F:0</span></div>
+            </div>
+          </div>
+          <div style="margin-top:10px">
+            <div>标签命中：</div>
+            <div id="tagHits" class="meter"></div>
+          </div>
+        </div>
+      </aside>
+    </div>
+  </div>
+
+  <footer>© 2026 小测原型（单题步进版）。不收集任何数据。</footer>
+</div>
+
+<script>
+/* ========== 题目（对外不展示元数据；文本已去除“映射：xxx”字样） ========== */
+const QUESTIONS = [
+  { t:"1) 面对一连串机会点，你会：",
+    A:"A. 我先上手试一记，边做边决定下一步。",
+    B:"B. 先观察节奏与规律，再启动。",
+    mapA:{E:1}, mapB:{I:1} },
+  { t:"2) 有些事物按固定节拍起落，你更：",
+    A:"A. 记住节拍，要踩点通过。",
+    B:"B. 寻找不按套路的切入角。",
+    mapA:{S:1}, mapB:{N:1} },
+  { t:"3) 两条路径：稳妥而长 vs 大胆而短，你会：",
+    A:"A. 走稳妥的，减少返工。",
+    B:"B. 先冲短线，当作锻炼，不行再换。",
+    mapA:{J:1}, mapB:{P:1} },
+  { t:"4) 搬着一件“会妨碍动作”的物件同行时，你更：",
+    A:"A. 把它当工具管理，优先效率和目标。",
+    B:"B. 保持流畅节奏，追求近乎“黄金”的连贯感。",
+    mapA:{T:1}, mapB:{F:1} },
+  { t:"5) 一股力量正缓慢托举你向上、顶端可借力弹出，你会：",
+    A:"A. 我会提前定点，稳定弹出。",
+    B:"B. 按临场手感调整时机。",
+    mapA:{J:1}, mapB:{P:1} },
+  { t:"6) 明线规则清晰但狭窄；暗线自由但不确定，你选：",
+    A:"A. 清晰明线。",
+    B:"B. 自由暗线，要边走边判断。",
+    mapA:{S:1}, mapB:{N:1} },
+  { t:"7) 若可借“反弹”连续改方向，你更：",
+    A:"A. 享受把多个反弹串成一段，像在淬炼路线。",
+    B:"B. 仅在必要时使用，主打稳步推进。",
+    mapA:{E:1, TAG_COLLIDE:1}, mapB:{I:1} },
+  { t:"8) 有条“直线突进”方案，风险高回报大（命中如点金）：",
+    A:"A. 愿意多试几次，命中一次就值。",
+    B:"B. 选择曲线迂回，稳为先。",
+    mapA:{E:1, TAG_DASH:1}, mapB:{I:1} },
+  { t:"9) 穿过一个“进出点模糊的流体通道”，你更看重：",
+    A:"A. 我更重视精确把握进出时机。",
+    B:"B. 进入后顺势而行，出口随势而定。",
+    mapA:{S:1}, mapB:{N:1, TAG_FLOW:1} },
+  { t:"10) 可选的小收集/加分项，你通常：",
+    A:"A. 顺手点缀式完成。",
+    B:"B. 另起计划逐一拿下，要一个不落。",
+    mapA:{P:1}, mapB:{J:1} },
+  { t:"11) 在连续压力下，你更像：",
+    A:"A. 工程师：拉开节律、构建稳态循环，锻炼耐心。",
+    B:"B. 指挥家：与压力共舞，找情绪缝隙。",
+    mapA:{T:1}, mapB:{F:1} },
+  { t:"12) 有一种“一触即发、能把你送很远”的外力，你：",
+    A:"A. 喜欢借它快速改线、衔接连续动作，力求“黄金”节奏。",
+    B:"B. 更偏好自己掌控的缓行路径。",
+    mapA:{E:1, TAG_MOMENTUM:1}, mapB:{I:1} },
+  { t:"13) 哪种成就感更强：",
+    A:"A. 让我更有成就感的是拆出隐藏规则、发现秘密通道。",
+    B:"B. 在严苛标准下零失误完成。",
+    mapA:{N:1}, mapB:{S:1} },
+  { t:"14) 当犯错代价升高时，你会：",
+    A:"A. 收紧策略，要优先可复制方案。",
+    B:"B. 仍保留试验与押注手感的空间。",
+    mapA:{J:1}, mapB:{P:1} },
+  { t:"15) 对“伙伴/工具”的偏好更接近：",
+    A:"A. 功能与效率，更利于历练系统感。",
+    B:"B. 安全感与节奏。",
+    mapA:{T:1}, mapB:{F:1} },
+  { t:"16) 一段需要连续借力向上的过程里，你更想：",
+    A:"A. 每一步都利落直白，路线笔直，如一条金线。",
+    B:"B. 融合多种借力，编织顺滑一体。",
+    mapA:{T:1, TAG_DASH:1}, mapB:{F:1, TAG_COLLIDE:1, TAG_FLOW:1} }
+];
+
+/* ========== 实体库（与之前相同，Theo 水晶文案已更新） ========== */
+const ENTITIES = [
+  { key:"badeline_booster", name:"Badeline Booster（badeline球）",
+    idea:"来自内在分身的助力，临界时刻把你抛出瓶颈，鼓励顺势跃迁与自我增幅。",
+    kw:["跃迁","内在助力","抛投","回充"],
+    w:{E:2,N:2,P:1,F:1,TAG_DASH:1,TAG_MOMENTUM:1} },
+  { key:"dust_bunnies", name:"Dust Bunnies（会动的煤球）",
+    idea:"节律与边界始终在线；穿梭其间需要克制与耐心，靠自律找出稳定窗口。",
+    kw:["节律","边界","耐心"], w:{I:2,S:2,J:2,T:1} },
+  { key:"kevin", name:"Kevin Blocks（kevin）",
+    idea:"激活—直线猛冲—止动的纯因果反馈，敢于取直，用有效可行解决问题。",
+    kw:["直线","因果","高回报"], w:{E:1,S:1,J:2,T:2,TAG_DASH:2} },
+  { key:"badeline_boss", name:"Badeline（对抗段）",
+    idea:"与自己谈判、在冲突中找节奏；每一次贴近，都是把分裂整合的尝试。",
+    kw:["内观","整合","缝隙"], w:{I:1,N:2,F:1,P:1,TAG_COLLIDE:1} },
+  { key:"theo_crystal", name:"Theo Crystal（theo水晶）",
+    idea:"它是前进的累赘，也是成长的课题；负重前行，练就独特技巧后方能推进。",
+    kw:["负重","独特技巧","门槛"], w:{I:2,S:1,J:2,T:1} },
+  { key:"spikes_spinners", name:"Spikes / Spinners（尖刺/圆刺）",
+    idea:"清晰但不可逾越的禁区感，要求秩序与精确，容错几乎为零。",
+    kw:["禁区","精确","零容错"], w:{I:1,S:2,J:2,T:1,TAG_COLLIDE:1} },
+  { key:"oshiro", name:"Mr. Oshiro（屋顶追逐）",
+    idea:"体面与执念的拉扯；学会借其空隙与冷却节奏，才能共处而过关。",
+    kw:["执念","空隙","冷却"], w:{I:2,J:1,F:1,N:1,TAG_COLLIDE:1} },
+  { key:"heart_door", name:"Heart Door（心门）",
+    idea:"以明确阈值回馈长期积累；把进度沉淀为可开启的新段落。",
+    kw:["阈值","积累","解锁"], w:{J:3,S:1,T:1} },
+  { key:"dream_blocks", name:"Dream Blocks（梦方块）",
+    idea:"选择权大幅扩张，穿墙而行的自由让创造性路线成为可能。",
+    kw:["自由","穿越","创造性"], w:{E:1,N:2,P:2,TAG_MOMENTUM:1,TAG_FLOW:1} },
+  { key:"crystal_hearts", name:"Crystal Hearts（水晶心）",
+    idea:"以阶段性里程碑串起旅程，一步步拓展可抵达的世界。",
+    kw:["里程碑","拓展","循序"], w:{J:2,N:1,F:1,S:1} },
+  { key:"strawberries", name:"Strawberries（草莓）",
+    idea:"不为通关，只为好看与手感；把旅程点缀为可分享的浪漫瞬间。",
+    kw:["审美","手感","点缀"], w:{E:1,N:1,F:2,P:2} },
+  { key:"bumpers", name:"Bumpers（弹球）",
+    idea:"触之即弹，善用反弹把零碎动量串成华丽一段，掌控改线的节拍。",
+    kw:["反弹","串联","节拍"], w:{E:2,P:1,T:1,TAG_COLLIDE:3,TAG_MOMENTUM:1} },
+  { key:"core_cold", name:"Core Blocks · Cold（冰块·冷态）",
+    idea:"环境即规则：顺势而为、轻踩即沉，要求预判与保守操作。",
+    kw:["环境","预判","保守"], w:{I:1,S:2,J:2,T:1} },
+  { key:"conveyor", name:"Conveyor Walls（传送带墙）",
+    idea:"向上托举的公共装置；抓住与松手的抉择，决定你被托起的高度与弹出角。",
+    kw:["托举","时机","弹出"], w:{E:1,P:2,F:1,TAG_FLOW:3,TAG_DASH:1} },
+  { key:"jellyfish", name:"Jellyfish / Glider（水母）",
+    idea:"借外力滑翔，在开阔空间里连续衔接与再加速，流动感即安全感。",
+    kw:["滑翔","衔接","流动"], w:{E:1,N:1,P:2,F:1,TAG_MOMENTUM:3,TAG_FLOW:2} },
+  { key:"granny_bird", name:"Granny / Blue Bird（老奶奶/蓝鸟）",
+    idea:"像“概念神”般忽现于终点：一句点拨、一次抛送，仿佛在戏谑又在成全。",
+    kw:["点拨","抛送","戏谑"], w:{}, special:true }
+];
+
+/* ========== 单题步进渲染 ========== */
+const form = document.getElementById('quiz');
+const qBox = document.getElementById('qBox');
+const prevBtn = document.getElementById('prevBtn');
+const nextBtn = document.getElementById('nextBtn');
+const submitBtn = document.getElementById('submitBtn');
+const resetBtn = document.getElementById('resetBtn');
+const warn = document.getElementById('warn');
+const pbar = document.getElementById('pbar');
+const idxNow = document.getElementById('idxNow');
+
+const resultWrap = document.getElementById('result');
+const quizCard = document.getElementById('quizCard');
+const editBtn = document.getElementById('editBtn');
+const restartBtn = document.getElementById('restartBtn');
+
+let cur = 0; // 0..15
+const answers = new Array(QUESTIONS.length).fill(null);
+
+function renderStep(){
+  const q = QUESTIONS[cur];
+  qBox.innerHTML = `
+    <h3>${q.t}</h3>
+    <div class="opts">
+      <label class="opt">
+        <input type="radio" name="q" value="A" ${answers[cur]==='A'?'checked':''}>
+        <span>${q.A}</span>
+      </label>
+      <label class="opt">
+        <input type="radio" name="q" value="B" ${answers[cur]==='B'?'checked':''}>
+        <span>${q.B}</span>
+      </label>
+    </div>
+  `;
+  // 控件状态
+  prevBtn.disabled = cur===0;
+  nextBtn.disabled = answers[cur]==null || cur===QUESTIONS.length-1;
+  submitBtn.disabled = answers.some(v=>v==null);
+  idxNow.textContent = (cur+1).toString();
+  const pct = Math.round(100*(answers.filter(Boolean).length)/QUESTIONS.length);
+  pbar.style.width = pct + '%';
+  warn.textContent = cur<QUESTIONS.length-1
+    ? '提示：本页作答后可点“下一题”，可随时返回修改。'
+    : '提示：你在最后一题。全部作答完成后可直接提交或返回检查。';
+}
+
+form.addEventListener('change', (e)=>{
+  if(e.target && e.target.name==='q'){
+    answers[cur] = e.target.value;
+    nextBtn.disabled = (answers[cur]==null) || (cur===QUESTIONS.length-1);
+    submitBtn.disabled = answers.some(v=>v==null);
+    const pct = Math.round(100*(answers.filter(Boolean).length)/QUESTIONS.length);
+    pbar.style.width = pct + '%';
+  }
+});
+
+prevBtn.addEventListener('click', ()=>{
+  if(cur>0){ cur--; renderStep(); }
+});
+nextBtn.addEventListener('click', ()=>{
+  if(cur<QUESTIONS.length-1){ cur++; renderStep(); }
+});
+resetBtn.addEventListener('click', ()=>{
+  for(let i=0;i<answers.length;i++) answers[i]=null;
+  cur=0; renderStep();
+  resultWrap.classList.remove('show');
+  quizCard.style.display='block';
+  window.scrollTo({top:0,behavior:'smooth'});
+});
+
+editBtn.addEventListener('click', ()=>{
+  // 返回未完成的第一题；若都完成，则回到第 1 题
+  const idx = answers.findIndex(v=>v==null);
+  cur = idx===-1 ? 0 : idx;
+  resultWrap.classList.remove('show');
+  quizCard.style.display='block';
+  renderStep();
+  window.scrollTo({top:0,behavior:'smooth'});
+});
+
+restartBtn.addEventListener('click', ()=>{
+  for(let i=0;i<answers.length;i++) answers[i]=null;
+  cur=0; renderStep();
+  resultWrap.classList.remove('show');
+  quizCard.style.display='block';
+  window.scrollTo({top:0,behavior:'smooth'});
+});
+
+form.addEventListener('submit', (e)=>{
+  e.preventDefault();
+  if(answers.some(v=>v==null)){
+    warn.textContent='还有题目未选择哦。';
+    return;
+  }
+  const out = evaluate(answers.slice());
+  renderResult(out);
+  quizCard.style.display='none';
+  resultWrap.classList.add('show');
+  window.scrollTo({top:0,behavior:'smooth'});
+});
+
+/* ========== 判定彩蛋 ========== */
+function eggCheck(ans){
+  const allA = ans.every(x=>x==='A');
+  const allB = ans.every(x=>x==='B');
+  if(allA || allB) return {key:'granny_bird', badge:'彩蛋 · 老奶奶/蓝鸟'};
+
+  const moon = ['B','B','B','B','B','A','B','B','B','B','B','B','A','B','B','B'];
+  let okMoon = true;
+  for(let i=0;i<16;i++){ if(ans[i]!==moon[i]) { okMoon=false; break; } }
+  if(okMoon) return {key:'moonBerry', badge:'彩蛋 · 月梅'};
+
+  const gold = ['A','A','B','B','A','B','A','*','A','B','A','A','A','A','A','A'];
+  let okGold = true;
+  for(let i=0;i<16;i++){
+    if(gold[i]==='*') continue;
+    if(ans[i]!==gold[i]) { okGold=false; break; }
+  }
+  if(okGold) return {key:'golden', badge:'彩蛋 · 金草莓'};
+
+  return null;
+}
+
+/* ========== 计算分数并匹配实体 ========== */
+function evaluate(ans){
+  const dims = {E:0,I:0,S:0,N:0,J:0,P:0,T:0,F:0};
+  const tags = {TAG_COLLIDE:0,TAG_DASH:0,TAG_MOMENTUM:0,TAG_FLOW:0};
+  ans.forEach((v,idx)=>{
+    const q = QUESTIONS[idx];
+    const map = (v==='A')? q.mapA : q.mapB;
+    for(const k in map){
+      if(k in dims) dims[k]+=map[k];
+      else if(k in tags) tags[k]+=map[k];
+    }
+  });
+
+  const egg = eggCheck(ans);
+  if(egg){
+    if(egg.key==='granny_bird'){
+      return { entity: ENTITIES.find(e=>e.key==='granny_bird'), dims, tags, egg:egg.badge };
+    }
+    if(egg.key==='moonBerry'){
+      const moonEntity = {
+        key:'moon_berry',
+        name:'Moon Berry（月梅）',
+        idea:'隐藏在终盘后的“不可直说”之路；绕远、隐忍与执着，换来一次只属于你的月光时刻。',
+        kw:['隐藏路线','执着','月光'],
+        w:{} };
+      return { entity: moonEntity, dims, tags, egg:egg.badge };
+    }
+    if(egg.key==='golden'){
+      const goldEntity = {
+        key:'golden_strawberry',
+        name:'Golden Strawberry（金草莓）',
+        idea:'零失误的漫长练习，把控制、耐心与心流雕成一枚金色句号。',
+        kw:['零死亡','心流','精准'],
+        w:{} };
+      return { entity: goldEntity, dims, tags, egg:egg.badge };
+    }
+  }
+
+  // 常规匹配
+  let best=null, bestScore=-1, tie=[];
+  ENTITIES.filter(e=>!e.special).forEach(ent=>{
+    let s=0;
+    for(const k in ent.w){
+      if(k in dims) s += ent.w[k]*dims[k];
+      if(k in tags) s += ent.w[k]*tags[k];
+    }
+    const tagFocus = ['TAG_COLLIDE','TAG_DASH','TAG_MOMENTUM','TAG_FLOW']
+      .filter(t=>tags[t]>0 && ent.w[t]>0).length;
+    s += tagFocus*0.5;
+    if(s>bestScore){ bestScore=s; best=ent; tie=[ent]; }
+    else if(s===bestScore){ tie.push(ent); }
+  });
+  if(tie.length>1){
+    tie.sort((a,b)=>{
+      const ta = ['TAG_COLLIDE','TAG_DASH','TAG_MOMENTUM','TAG_FLOW'].reduce((m,t)=>m+(a.w[t]?1:0),0);
+      const tb = ['TAG_COLLIDE','TAG_DASH','TAG_MOMENTUM','TAG_FLOW'].reduce((m,t)=>m+(b.w[t]?1:0),0);
+      return tb - ta;
+    });
+    best = tie[0];
+  }
+  return { entity: best, dims, tags, egg:null };
+}
+
+/* ========== 渲染结果 ========== */
+function renderResult({entity,dims,tags,egg}){
+  const title = document.getElementById('resTitle');
+  const desc = document.getElementById('resDesc');
+  const meta = document.getElementById('metaLine');
+  const kwLine = document.getElementById('kwLine');
+  const eggBadge = document.getElementById('eggBadge');
+
+  title.textContent = `你的对应实体：${entity.name}`;
+  desc.textContent = entity.idea;
+
+  kwLine.innerHTML='';
+  (entity.kw||[]).forEach(k=>{
+    const span=document.createElement('span');
+    span.className='tag';
+    span.textContent=k;
+    kwLine.appendChild(span);
+  });
+
+  const mbti = [
+    dims.E>=dims.I?'E':'I',
+    dims.S>=dims.N?'S':'N',
+    dims.J>=dims.P?'J':'P',
+    dims.T>=dims.F?'T':'F'
+  ].join('');
+  meta.innerHTML='';
+  const bits = [
+    `MBTI 倾向：${mbti}`,
+    `E:${dims.E} / I:${dims.I}`,
+    `S:${dims.S} / N:${dims.N}`,
+    `J:${dims.J} / P:${dims.P}`,
+    `T:${dims.T} / F:${dims.F}`
+  ];
+  bits.forEach(b=>{
+    const s=document.createElement('span');
+    s.className='pill';
+    s.textContent=b;
+    meta.appendChild(s);
+  });
+
+  const setBar=(id,a,b)=>{ const total=Math.max(1,a+b); const pct = Math.round(100*a/total); document.getElementById(id).style.width = pct+'%'; };
+  setBar('barEI', dims.E, dims.I);
+  setBar('barSN', dims.S, dims.N);
+  setBar('barJP', dims.J, dims.P);
+  setBar('barTF', dims.T, dims.F);
+  document.getElementById('labE').textContent='E:'+dims.E;
+  document.getElementById('labI').textContent='I:'+dims.I;
+  document.getElementById('labS').textContent='S:'+dims.S;
+  document.getElementById('labN').textContent='N:'+dims.N;
+  document.getElementById('labJ').textContent='J:'+dims.J;
+  document.getElementById('labP').textContent='P:'+dims.P;
+  document.getElementById('labT').textContent='T:'+dims.T;
+  document.getElementById('labF').textContent='F:'+dims.F;
+
+  const tagHits = document.getElementById('tagHits');
+  tagHits.innerHTML='';
+  const tagName = {TAG_COLLIDE:'碰撞改线', TAG_DASH:'直线猛冲', TAG_MOMENTUM:'动量借力', TAG_FLOW:'流动感'};
+  Object.keys(tagName).forEach(k=>{
+    if(tags[k]>0){
+      const s=document.createElement('span'); s.className='tag';
+      s.textContent=`${tagName[k]} × ${tags[k]}`;
+      tagHits.appendChild(s);
+    }
+  });
+
+  if(egg){ eggBadge.style.display='inline-block'; eggBadge.textContent=egg; }
+  else { eggBadge.style.display='none'; }
+
+  document.getElementById('result').classList.add('show');
+}
+
+/* ========== 主题切换（浅色/深色） ========== */
+const themeChip = document.getElementById('themeChip');
+function applyTheme(mode){
+  document.documentElement.setAttribute('data-theme', mode);
+  themeChip.textContent = mode==='dark' ? '切换到浅色' : '切换到深色';
+}
+(function initTheme(){
+  let m = 'dark';
+  try{
+    const saved = localStorage.getItem('celeste_theme');
+    if(saved) m = saved;
+    else if(window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) m='light';
+  }catch(_){}
+  applyTheme(m);
+})();
+themeChip.addEventListener('click', ()=>{
+  const curMode = document.documentElement.getAttribute('data-theme')==='dark'?'dark':'light';
+  const next = curMode==='dark'?'light':'dark';
+  applyTheme(next);
+  try{ localStorage.setItem('celeste_theme', next); }catch(_){}
+});
+themeChip.addEventListener('keydown', (e)=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); themeChip.click(); }});
+
+/* ========== 初始化 ========== */
+warn.textContent='提示：每次呈现一道题，随时可返回修改；提交后也可以回到题目重做。';
+renderStep();
+</script>
+</body>
+</html>
