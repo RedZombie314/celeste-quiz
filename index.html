@@ -365,7 +365,7 @@ function eggCheck(ans){
   const allB = ans.every(x=>x==='B');
   if(allA || allB) return {key:'granny_bird', badge:'彩蛋 · 老奶奶/蓝鸟'};
 
-  const moon = ['B','B','B','B','B','A','B','B','B','B','B','B','A','B','B','B'];
+  const moon = ['A','B','B','B','B','B','A','B','A','B','B','B','B','B','A','B'];
   let okMoon = true;
   for(let i=0;i<16;i++){ if(ans[i]!==moon[i]) { okMoon=false; break; } }
   if(okMoon) return {key:'moonBerry', badge:'彩蛋 · 月梅'};
